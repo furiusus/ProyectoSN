@@ -13,51 +13,94 @@ class Login extends React.Component{
         this.correoChange=this.correoChange.bind(this);
         this.passChange = this.passChange.bind(this);
         this.entrar = this.entrar.bind(this);
+        this.validarCorreo = this.validarCorreo.bind(this);
+        this.validarPassword = this.validarPassword.bind(this);
     }
     correoChange(e){
         this.setState({
             correo:e.target.value
-        })        
+        })          
     }
     passChange(e){
         this.setState({
             contrasenia:e.target.value
         })
     }
+    validarCorreo(correo){
+        if(correo.length==0){
+            this.setState({mensajeCorreo:"Correo en blanco"});
+            return false;
+        }else{
+            for(var c=0;c<correo.length;c++){            
+                if(correo.charAt(c)=='@'){
+                    this.setState({mensajeCorreo:""});
+                    return true;
+                } 
+                if(c==correo.length-1){
+                    this.setState({mensajeCorreo:"Correo invalido '@'"});
+                    return false;
+                } 
+            }
+        }
+    }
+    validarPassword(password){
+        if(password.length==0){
+            this.setState({mensajeCorreo:"Contraseña invalido"})
+            return false;
+        }else{
+            return true;
+        }
+    }
     entrar(){
-        //lectura de datos - yo quria acerlo con axios :'c
+        this.setState({mensajeCorreo:"",mensajePassword:""});
         var usuarios = JSON.parse(localStorage.getItem("usuarios"));
-        console.log(usuarios);
-        for(var i=0 ; i< usuarios.length;i++){
-            console.log(usuarios[i].correo);
-            if(usuarios[i].correo==this.state.correo){
-                console.log("entro");
-            }else{
-                this.state.mensaje("Correo no existe")
+        if(this.validarCorreo(this.state.correo)&&this.validarPassword(this.state.contrasenia)){
+            for(var i=0 ; i< usuarios.length;i++){
+                if(usuarios[i].correo==this.state.correo){
+                    if(usuarios[i].contrasenia==this.state.contrasenia){
+                        console.log("entro");
+                        break;
+                    }else{
+                        this.setState({mensajePassword:"Contraseña incorrecta"})
+                    }
+                    break;
+                }else{
+                    this.setState({mensajeCorreo:"Correo no registrado"});
+                }
             }
         }
         var usuarios = null;
     }
     render(){
+        const mensaje1 = !(this.state.mensajeCorreo=="")?(
+            <div className="invalido">{this.state.mensajeCorreo}</div>
+        ):<div className="valido"></div>;
+        const mensaje2 = !(this.state.mensajePassword=="")?(
+            <div className="invalido">{this.state.mensajePassword}</div>
+        ):<div className="valido"></div>;
         const etiqueta = !this.state.entrar?(<div className="row container" >
-        <div className="col-sm-4 "></div>
-        <div className="col-12 col-sm-4 col-lg-4">
-            <form>
+        <div className="col-sm-2 col-lg-4"></div>
+        <div className="col-12 col-sm-8 col-lg-4 fondoLogin">
+            <br></br>
+            <form >
                 <div className="form-group">
-                    <label for="nombre"  >Correo:</label>
-                    <input onChange={this.correoChange} className="form-control" type="email" id="correo" placeholder="Ingrese correo" ></input>
+                    <label for="correo" className="sub-login">Correo:</label>
+                    <input onChange={this.correoChange} className="form-control" type="email" id="correo" placeholder="Ingrese correo"></input>
+                    {mensaje1}
                 </div>
                 <div className="form-group">
-                    <label for="contrasenia">Contraseña:</label>
+                    <label for="contrasenia" className="sub-login">Contraseña:</label>
                     <input onChange={this.passChange} className="form-control" type="password" id="contrasenia" placeholder="Ingrese contraseña"></input>
+                    {mensaje2}
                 </div>
-                <div>{this.state.mensaje}</div>
             </form>
             <div className="col-12 container text-center">
                 <button className="btn btn-primary" onClick={this.entrar}>Entrar</button>
             </div>
+            <br></br>
+            <br></br>
         </div>
-        <div className="col-sm-4"></div>
+        <div className="col-sm-2"></div>
     </div>):<PaginaPrincipal first_name={this.state.nombre}></PaginaPrincipal>
         return(
             <div>

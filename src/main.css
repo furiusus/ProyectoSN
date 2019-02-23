@@ -1,0 +1,45 @@
+.valido{
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: #28a745;
+  }
+.invalido{
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: #dc3545;
+  }
+.sub-login{
+    font-size: 120%;
+    color: #2F0DFF ;
+    font-weight: bold;
+    font-style: italic
+}
+.fondo{
+    background-image: url("image/back-480.png");
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-attachment: fixed;
+    background-size: cover
+}@media (min-width: 480px) {
+    .fondo {
+        background-image: url("image/back-480.png");
+    }
+}
+@media (min-width: 768px) {
+    .fondo {
+        background-image: url("image/back768.png");
+    }
+}
+@media (min-width: 1200px) {
+    .fondo {
+        background-image: url("image/back-1200.jpg");
+    }
+}
+.fondoLogin{
+    background-color:lavender;
+    opacity: .8;
+    border: black solid .8;
+    border-radius: 12px;
+}
