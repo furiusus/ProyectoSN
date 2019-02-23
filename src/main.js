@@ -6,15 +6,17 @@ class Login extends React.Component{
             nombre:"",
             contrasenia:"",
             entrar:false,
-            mensaje:""
+            mensajeCorreo:"",
+            mensajePassword:"",
+            correo:""
         }
-        this.nombreChange=this.nombreChange.bind(this);
+        this.correoChange=this.correoChange.bind(this);
         this.passChange = this.passChange.bind(this);
         this.entrar = this.entrar.bind(this);
     }
-    nombreChange(e){
+    correoChange(e){
         this.setState({
-            nombre:e.target.value
+            correo:e.target.value
         })        
     }
     passChange(e){
@@ -23,24 +25,18 @@ class Login extends React.Component{
         })
     }
     entrar(){
-
-        console.log(this.state)
-        axios.get("http://192.168.8.120:3000/personas?first_name="+this.state.nombre+
-        "&&last_name="+this.state.contrasenia)
-        .then(res => {
-          const persona = res.data;
-          if(persona.length!=0){
-            this.setState({entrar:true})
-          }else{
-            this.setState({mensaje:"usuario o contraseña incorrecto"})
-          }
-/**          var persona = personas[0];
-*          console.log(persona.last_name)
-*          if(persona.last_name==this.state.contrasenia){
-*            this.setState({entrar:true})
-*            console.log(this.state.entrar)
-*          }
-*/      })
+        //lectura de datos - yo quria acerlo con axios :'c
+        var usuarios = JSON.parse(localStorage.getItem("usuarios"));
+        console.log(usuarios);
+        for(var i=0 ; i< usuarios.length;i++){
+            console.log(usuarios[i].correo);
+            if(usuarios[i].correo==this.state.correo){
+                console.log("entro");
+            }else{
+                this.state.mensaje("Correo no existe")
+            }
+        }
+        var usuarios = null;
     }
     render(){
         const etiqueta = !this.state.entrar?(<div className="row container" >
@@ -48,11 +44,11 @@ class Login extends React.Component{
         <div className="col-12 col-sm-4 col-lg-4">
             <form>
                 <div className="form-group">
-                    <label for="nombre"  >nombre:</label>
-                    <input onChange={this.nombreChange} className="form-control" type="text" id="nombre" placeholder="Ingrese nombre" ></input>
+                    <label for="nombre"  >Correo:</label>
+                    <input onChange={this.correoChange} className="form-control" type="email" id="correo" placeholder="Ingrese correo" ></input>
                 </div>
                 <div className="form-group">
-                    <label for="contrasenia">Contraseña</label>
+                    <label for="contrasenia">Contraseña:</label>
                     <input onChange={this.passChange} className="form-control" type="password" id="contrasenia" placeholder="Ingrese contraseña"></input>
                 </div>
                 <div>{this.state.mensaje}</div>
@@ -75,10 +71,6 @@ class PaginaPrincipal extends React.Component{
         super(props)
         this.state={
             persona:{
-                id:null,
-                first_name:this.props.first_name,
-                last_name:null,
-                avatar:null,
             }
         }
     }

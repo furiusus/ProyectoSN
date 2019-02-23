@@ -1,0 +1,2 @@
+var usuarios = {"usuarios":[{"id":1,"nombres":"Ronny Daniel, Herrera Herrera","correo":"rherrerah@uni.pe","contrasenia":"ronny"},{"id":2,"nombres":"Mary Carmen, Herrera Herrera","correo":"mherrera@gmail.com","contrasenia":"mary"}]};
+localStorage.setItem("usuarios",JSON.stringify(usuarios))
