@@ -75,3 +75,15 @@
     border: seagreen solid 5px;
     border-radius: 5px
 }
+.cuadroRegistro{
+    background-color: cadetblue;
+    opacity : .8;
+    border : blue solid 1px;
+    border-radius: 5px;
+}
+.sub-registro{
+    font-size: 130%;
+    color: #2F0DFF ;
+    font-weight: bold;
+    font-style: italic
+}

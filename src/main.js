@@ -89,7 +89,7 @@ class Login extends React.Component{
         ):<div className="valido"></div>;
         const etiqueta = !this.state.entrar?(
             <div>
-        <div ><br></br><br></br><br></br><br></br><br></br><br></br></div>
+        <div ><br></br><br></br><br></br><br></br></div>
         <div className="row container" >
         <div className="col-sm-2 col-lg-4"></div>
         <div className="col-12 col-sm-8 col-lg-4 fondoLogin">
@@ -355,15 +355,147 @@ class PaginaPrincipal extends React.Component{
         )
     }
 }
-class AplicacionWeb extends React.Component{
+class Registro extends React.Component{
     constructor(props){
-        super(props)
-        this.state ={
+        super(props);
+        this.state={
+            datos:{
+                nombre:"",
+                apellido:"",
+                correo:"",
+                contrasenia:"",
+                repeatContrasenia:""
+            },
+            registrado:false
         }
+        this.onChangeApellido = this.onChangeApellido.bind(this);
+        this.onChangeContrasenia = this.onChangeContrasenia.bind(this);
+        this.onChangeCorreo = this.onChangeCorreo.bind(this);
+        this.onChangeNombre = this.onChangeNombre.bind(this);
+        this.onChangeRepeatContrasenia = this.onChangeRepeatContrasenia.bind(this);
+        this.registrar = this.registrar.bind(this);
+    }
+    onChangeNombre(e){
+        this.setState({nombre:e.target.value}) 
+    }
+    onChangeApellido(e){
+        this.setState({apellido:e.target.value})
+    }
+    onChangeCorreo(e){
+        this.setState({correo:e.target.value})
+    }
+    onChangeContrasenia(e){
+        this.setState({contrasenia:e.target.value})
+    }
+    onChangeRepeatContrasenia(){
+        this.setState({repeatContrasenia:e.target.value})
+    }
+    registrar(){
+
     }
     render(){
+        var eti = !this.state.registrado?(
+            <div>
+                <div><br></br></div>
+                <div className="row">
+                    <button className="btn btn-danger" onClick={this.props.retornar}>Regresar</button>
+                </div>
+            <div className="row ">
+                <div className="col-lg-2 col-xl-2"></div>
+            <div className="col-lg-8 col-xl-8 col-md-12 col-sm-12 col-12">
+                <div><br></br></div>
+                <form className="cuadroRegistro container">
+                    <div><br></br></div>
+                    <div className="form-row">
+                        <div className="col-lg-6 col-xl-6 col-md-12 col-sm-12 col-12 sbu-registro">
+                        <label className="sub-registro" for="validationDefault01">Nombres</label>
+                        <input type="text" className="form-control" id="validationDefault01" placeholder="First name" value="Mark" required></input>
+                        </div>
+                        <div className="col-lg-6 col-xl-6 col-md-12 col-sm-12 col-12">
+                        <label className="sub-registro" for="validationDefault02">Apellidos</label>
+                        <input type="text" className="form-control" id="validationDefault02" placeholder="Last name" value="Otto" required></input>
+                        </div>
+                    </div>
+                    <br></br>
+                    <div className="form-row">
+                        <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
+                        <div className="col-lg-5 col-xl-5 col-md-12 col-sm-12 col-12">
+                        <label className="sub-registro" for="validationDefaultUsername">Correo</label>
+                        <div className="input-group">
+                            <div className="input-group-prepend">
+                            <span className="input-group-text" id="inputGroupPrepend2">@</span>
+                            </div>
+                            <input type="text" className="form-control" id="validationDefaultUsername" placeholder="Username" aria-describedby="inputGroupPrepend2" required></input>
+                        </div>
+                        </div>
+                        <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
+                    </div>
+                    <br></br>
+                    <div className="form-row">
+                        <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
+                        <div className="col-lg-5 col-xl-5 col-md-12 col-sm-12 col-12">
+                        <label className="sub-registro" for="validationDefault03">Contraseña</label>
+                        <input type="text" className="form-control" id="validationDefault03" placeholder="City" required></input>
+                        </div>
+                        <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
+                    </div>
+                    <br></br>
+                    <div className="form-row">
+                        <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
+                        <div className="col-lg-5 col-xl-5 col-md-12 col-sm-12 col-12">
+                        <label className="sub-registro" for="validationDefault04">Repetir contraseña</label>
+                        <input type="text" className="form-control" id="validationDefault04" placeholder="State" required></input>
+                        </div>
+                        <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
+                    </div>
+                    <br></br>
+                    <div className="row ">
+                    <div className="col-lg col-xl col-md col-sm col"></div>
+                    <button className="btn btn-primary " type="submit">Registrar</button>
+                    <div className="col-lg col-xl col-md col-sm col"></div>
+                    </div>
+                    
+                    <div><br></br></div>
+                </form>
+            </div>
+            </div>
+            </div>
+        ):<PaginaPrincipal id={this.state.id}></PaginaPrincipal>
         return(
-            <Login ></Login>
+            <div>{eti}</div>
+        )
+    }
+}
+class AplicacionWeb extends React.Component{
+    constructor(props){
+        super(props);
+        this.state ={
+            pagina:0
+        };
+        this.registrar = this.registrar.bind(this);
+        this.inicio = this.inicio.bind(this);
+    }
+    registrar(){
+        this.setState({pagina:1})
+    }
+    inicio(){
+        this.setState({pagina:0})
+    }
+    render(){
+        switch(this.state.pagina){
+            case 0:
+                var etiq=(<div>
+                    <div><br></br></div>
+                    <div><button type="button" className="btn btn-primary" onClick={this.registrar}>Registrar</button></div>
+                    <Login ></Login>
+                </div>)
+                break;
+            case 1:
+                var etiq=<Registro retornar={this.inicio}></Registro>
+                break;
+        }
+        return(
+            <div>{etiq}</div>
         )
     }
 }
