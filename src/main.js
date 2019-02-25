@@ -17,13 +17,18 @@ class Login extends React.Component{
             mensajeCorreo:"",
             mensajePassword:"",
             correo:"",
-            id:0
+            id:0,
+            pagina:0,
+            btnRegistro:true
         }
         this.correoChange=this.correoChange.bind(this);
         this.passChange = this.passChange.bind(this);
         this.entrar = this.entrar.bind(this);
         this.validarCorreo = this.validarCorreo.bind(this);
         this.validarPassword = this.validarPassword.bind(this);
+        this.registrar = this.registrar.bind(this);
+        this.inicio =this.inicio.bind(this);
+
     }
     correoChange(e){
         this.setState({
@@ -60,6 +65,12 @@ class Login extends React.Component{
             return true;
         }
     }
+    registrar(){
+        this.setState({pagina:1})
+    }
+    inicio(){
+        this.setState({pagina:0})
+    }
     entrar(){
         this.setState({mensajeCorreo:"",mensajePassword:""});
         var usuarios = JSON.parse(localStorage.getItem("usuarios"));
@@ -79,6 +90,7 @@ class Login extends React.Component{
             }
         }
         var usuarios = null;
+        this.setState({btnRegistro:false})
     }
     render(){
         const mensaje1 = !(this.state.mensajeCorreo=="")?(
@@ -107,7 +119,7 @@ class Login extends React.Component{
                 </div>
             </form>
             <div className="col-12 container text-center">
-                <button className="btn btn-primary" onClick={this.entrar}>Entrar</button>
+                <button className="btn btn-primary" onClick={this.entrar} value={this.props.clickEntrando}>Entrar</button>
             </div>
             <br></br>
             <br></br>
@@ -116,9 +128,22 @@ class Login extends React.Component{
         </div>
         <div><br></br><br></br><br></br><br></br><br></br><br></br></div>
         </div>):<PaginaPrincipal id={this.state.id}></PaginaPrincipal>
+        switch(this.state.pagina){
+            case 0:
+                var btnR = this.state.btnRegistro?(<button type="button" className="btn btn-primary" onClick={this.registrar}>Registrar</button>):<div></div>
+                var etiq=(<div>
+                    <div><br></br></div>
+                    <div>{btnR}</div>
+                    {etiqueta}
+                </div>)
+                break;
+            case 1:
+                var etiq=<Registro retornar={this.inicio}></Registro>
+                break;
+        }
         return(
             <div>
-                {etiqueta}
+                {etiq}
             </div>
         );
     }
@@ -273,7 +298,6 @@ class BarraPublicacion extends React.Component{
         localStorage.setItem("publicaciones",JSON.stringify(publicaciones)); 
         this.setState({contenido:""});
     }
-
     render(){
         const eti =(<div className="modal fade" id="barraPubli" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div className="modal-dialog" role="document">
@@ -359,24 +383,34 @@ class Registro extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            datos:{
+            
+                id:0,
                 nombre:"",
                 apellido:"",
                 correo:"",
                 contrasenia:"",
-                repeatContrasenia:""
-            },
-            registrado:false
+                repeatContrasenia:"",
+            
+            registrado:false,
+            nombres:"",
+            mensajeNombreApellido:"",
+            mensajeCorreo:"",
+            mensajeContrasenia:"",
+            mensajeRepeatContrasenia:""
         }
         this.onChangeApellido = this.onChangeApellido.bind(this);
         this.onChangeContrasenia = this.onChangeContrasenia.bind(this);
         this.onChangeCorreo = this.onChangeCorreo.bind(this);
         this.onChangeNombre = this.onChangeNombre.bind(this);
         this.onChangeRepeatContrasenia = this.onChangeRepeatContrasenia.bind(this);
+        this.validarCorreo = this.validarCorreo.bind(this)
+        this.validarNombre = this.validarNombre.bind(this)
+        this.validarPassword = this.validarPassword.bind(this)
         this.registrar = this.registrar.bind(this);
+        
     }
     onChangeNombre(e){
-        this.setState({nombre:e.target.value}) 
+        this.setState({nombre:e.target.value})
     }
     onChangeApellido(e){
         this.setState({apellido:e.target.value})
@@ -387,13 +421,95 @@ class Registro extends React.Component{
     onChangeContrasenia(e){
         this.setState({contrasenia:e.target.value})
     }
-    onChangeRepeatContrasenia(){
+    onChangeRepeatContrasenia(e){
         this.setState({repeatContrasenia:e.target.value})
     }
+    validarCorreo(correo){
+        if(correo.length==0){
+            this.setState({mensajeCorreo:"Correo en blanco"});
+            return false;
+        }else{
+            for(var c=0;c<correo.length;c++){            
+                if(correo.charAt(c)=='@'){
+                    var listaUsuarios= JSON.parse(localStorage.getItem("usuarios"));
+                    for(var i =0; i <listaUsuarios.length;i++){
+                        if(listaUsuarios[i].correo==correo){
+                            this.setState({mensajeCorreo:"Cuenta existente con este correo"});
+                            return false;
+                        }
+                    }
+                    this.setState({mensajeCorreo:""});
+                    return true;
+                } 
+                if(c==correo.length-1){
+                    this.setState({mensajeCorreo:"Correo invalido '@'"});
+                    return false;
+                } 
+            }
+        }
+    }
+    validarPassword(password,repeatPassword){
+        if(password.length==0){
+            this.setState({mensajeContrasenia:"Contraseña invalido"})
+            return false;
+        }else{
+            if(password==repeatPassword){
+                this.setState({mensajeContrasenia:""})
+                this.setState({mensajeRepeatContrasenia:""})
+                return true;    
+            }else{
+                this.setState({mensajeRepeatContrasenia:"Contraseñas no coinciden"})
+                return false;
+            }
+        }
+    }
+    validarNombre(nombre,apellido){
+        if(nombre==""){
+            this.setState({nombres:apellido})
+            this.setState({mensajeNombreApellido:""})
+            return true;
+        }if(apellido==""){
+            this.setState({nombres:nombre})
+            this.setState({mensajeNombreApellido:""})
+            return true;
+        }if(nombre==""&&apellido==""){
+            this.setState({mensajeNombreApellido:"Debe ingresar almenos 1 dato en Nombre o Apellido"})
+            return false;
+        }else{
+            this.setState({nombres:nombre+","+apellido})
+            this.setState({mensajeNombreApellido:""})
+            return true;
+        }
+    }
     registrar(){
-
+        console.log(this.state);
+        if(this.validarCorreo(this.state.correo)&&this.validarNombre(this.state.nombre,this.state.apellido)&&this.validarPassword(this.state.contrasenia,this.state.repeatContrasenia)){
+            const usuarios = JSON.parse(localStorage.getItem("usuarios"));
+            var usuarioNuevo = {
+                id:usuarios.length+1,
+                nombres:this.state.nombres,
+                correo:this.state.correo,
+                contrasenia:this.state.contrasenia
+            };
+            this.setState({id:usuarioNuevo.id,registrado:true});
+            usuarios.splice(usuarios.length,0,usuarioNuevo);
+            localStorage.removeItem("usuarios");
+            localStorage.setItem("usuarios",JSON.stringify(usuarios)); 
+        }
     }
     render(){
+        const mensaje1 = !(this.state.mensajeCorreo=="")?(
+            <div className="invalidoRegistro">{this.state.mensajeCorreo}</div>
+        ):<div className="valido"></div>;
+        const mensaje2 = !(this.state.mensajeContrasenia=="")?(
+            <div className="invalidoRegistro">{this.state.mensajeContrasenia}</div>
+        ):<div className="valido"></div>;
+        const mensaje3 = !(this.state.mensajeNombreApellido=="")?(
+            <div className="invalidoRegistro">{this.state.mensajeNombreApellido}</div>
+        ):<div className="valido"></div>;
+        const mensaje4 = !(this.state.mensajeRepeatContrasenia=="")?(
+            <div className="invalidoRegistro">{this.state.mensajeRepeatContrasenia}</div>
+        ):<div className="valido"></div>;
         var eti = !this.state.registrado?(
             <div>
                 <div><br></br></div>
@@ -409,12 +525,13 @@ class Registro extends React.Component{
                     <div className="form-row">
                         <div className="col-lg-6 col-xl-6 col-md-12 col-sm-12 col-12 sbu-registro">
                         <label className="sub-registro" for="validationDefault01">Nombres</label>
-                        <input type="text" className="form-control" id="validationDefault01" placeholder="First name" value="Mark" required></input>
+                        <input type="text" className="form-control" id="validationDefault01" placeholder="Nombres" onChange={this.onChangeNombre}></input>
                         </div>
                         <div className="col-lg-6 col-xl-6 col-md-12 col-sm-12 col-12">
                         <label className="sub-registro" for="validationDefault02">Apellidos</label>
-                        <input type="text" className="form-control" id="validationDefault02" placeholder="Last name" value="Otto" required></input>
+                        <input type="text" className="form-control" id="validationDefault02" placeholder="Apellidos" onChange={this.onChangeApellido}></input>
                         </div>
+                        {mensaje3}
                     </div>
                     <br></br>
                     <div className="form-row">
@@ -425,33 +542,39 @@ class Registro extends React.Component{
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="inputGroupPrepend2">@</span>
                             </div>
-                            <input type="text" className="form-control" id="validationDefaultUsername" placeholder="Username" aria-describedby="inputGroupPrepend2" required></input>
+                            <input type="text" className="form-control" id="validationDefaultUsername" placeholder="Correo" aria-describedby="inputGroupPrepend2" required onChange={this.onChangeCorreo}></input>
+                            {mensaje1}
                         </div>
                         </div>
                         <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
+                        
                     </div>
                     <br></br>
                     <div className="form-row">
                         <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
                         <div className="col-lg-5 col-xl-5 col-md-12 col-sm-12 col-12">
                         <label className="sub-registro" for="validationDefault03">Contraseña</label>
-                        <input type="text" className="form-control" id="validationDefault03" placeholder="City" required></input>
+                        <input type="password" className="form-control" id="validationDefault03" placeholder="Contraseña" required onChange={this.onChangeContrasenia}></input>
+                        {mensaje2}
                         </div>
                         <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
+                        
                     </div>
                     <br></br>
                     <div className="form-row">
                         <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
                         <div className="col-lg-5 col-xl-5 col-md-12 col-sm-12 col-12">
                         <label className="sub-registro" for="validationDefault04">Repetir contraseña</label>
-                        <input type="text" className="form-control" id="validationDefault04" placeholder="State" required></input>
+                        <input type="password" className="form-control" id="validationDefault04" placeholder="Contraseña" required onChange={this.onChangeRepeatContrasenia}></input>
+                        {mensaje4}
                         </div>
                         <div className="col-lg col-xl col-md-5 col-sm-12 col-12"></div>
+                        
                     </div>
                     <br></br>
                     <div className="row ">
                     <div className="col-lg col-xl col-md col-sm col"></div>
-                    <button className="btn btn-primary " type="submit">Registrar</button>
+                    <button className="btn btn-primary " onClick={this.registrar}>Registrar</button>
                     <div className="col-lg col-xl col-md col-sm col"></div>
                     </div>
                     
@@ -470,32 +593,12 @@ class AplicacionWeb extends React.Component{
     constructor(props){
         super(props);
         this.state ={
-            pagina:0
         };
-        this.registrar = this.registrar.bind(this);
-        this.inicio = this.inicio.bind(this);
-    }
-    registrar(){
-        this.setState({pagina:1})
-    }
-    inicio(){
-        this.setState({pagina:0})
+        
     }
     render(){
-        switch(this.state.pagina){
-            case 0:
-                var etiq=(<div>
-                    <div><br></br></div>
-                    <div><button type="button" className="btn btn-primary" onClick={this.registrar}>Registrar</button></div>
-                    <Login ></Login>
-                </div>)
-                break;
-            case 1:
-                var etiq=<Registro retornar={this.inicio}></Registro>
-                break;
-        }
         return(
-            <div>{etiq}</div>
+            <Login></Login>
         )
     }
 }
