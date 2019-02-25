@@ -1,10 +1,10 @@
 if(localStorage.getItem("usuarios")==null){
-    var usuarios = [{"id":1,"nombres":"Ronny Daniel, Herrera Herrera","correo":"rherrerah@uni.pe","contrasenia":"ronny"},{"id":2,"nombres":"Mary Carmen, Herrera Herrera","correo":"mherrera@gmail.com","contrasenia":"mary"}]
-    localStorage.setItem("usuarios",JSON.stringify(usuarios));
+var usuarios = [{"id":1,"nombres":"Ronny Daniel, Herrera Herrera","correo":"rherrerah@uni.pe","contrasenia":"ronny"},{"id":2,"nombres":"Mary Carmen, Herrera Herrera","correo":"mherrera@gmail.com","contrasenia":"mary"}]
+localStorage.setItem("usuarios",JSON.stringify(usuarios))
 }
 if(localStorage.getItem("publicaciones")==null){
-    var publicaciones = [{"id_publicacion":1, "contenido":"Publicacion 1 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[1]},{"id_publicacion":2, "contenido":"Publicacion 2 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[1,2]},{"id_publicacion":3, "contenido":"Publicacion 3 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[1,2]},{"id_publicacion":4, "contenido":"Publicacion 4 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[2]},{"id_publicacion":5, "contenido":"Publicacion 5 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[2]},{"id_publicacion":6, "contenido":"Publicacion 6 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[2]},{"id_publicacion":7, "contenido":"Publicacion 7 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[2]},{"id_publicacion":8, "contenido":"Publicacion 8 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[1,2]},{"id_publicacion":9, "contenido":"Publicacion 9 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[1,2]},{"id_publicacion":10, "contenido":"Publicacion 10 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[1]}]
-    localStorage.setItem("publicaciones",JSON.stringify(publicaciones));
+var publicaciones = [{"id_publicacion":1, "contenido":"Publicacion 1 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[1],"estado":"1"},{"id_publicacion":2, "contenido":"Publicacion 2 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[1,2],"estado":"1"},{"id_publicacion":3, "contenido":"Publicacion 3 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[1,2],"estado":"1"},{"id_publicacion":4, "contenido":"Publicacion 4 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[2],"estado":"1"},{"id_publicacion":5, "contenido":"Publicacion 5 con mucho contenido", "id_usuario":1,"listaUsuariosLike":[2],"estado":"1"},{"id_publicacion":6, "contenido":"Publicacion 6 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[2],"estado":"1"},{"id_publicacion":7, "contenido":"Publicacion 7 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[2],"estado":"0"},{"id_publicacion":8, "contenido":"Publicacion 8 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[1,2],"estado":"1"},{"id_publicacion":9, "contenido":"Publicacion 9 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[1,2],"estado":"0"},{"id_publicacion":10, "contenido":"Publicacion 10 con mucho contenido", "id_usuario":2,"listaUsuariosLike":[1],"estado":"1"}]
+localStorage.setItem("publicaciones",JSON.stringify(publicaciones));
 }
 var r=ReactDOM;
 class Login extends React.Component{
@@ -165,6 +165,9 @@ function BarraPaginaPrincipal(props){
                 <li className="nav-item">
                     <a className="nav-link" href="#" onClick={props.clickMostrarPublicacion}>Publicaciones</a>
                 </li>
+                <li className="nav-item">
+                    <a className="nav-link disable">{props.usuarioNombre}</a>
+                </li>
                 </ul>                
                 <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#barraPubli">
                     Publicar 
@@ -203,15 +206,24 @@ class Publicacion extends React.Component{
             id:0,
             author:"",
             publicaciones:[]
-        }
+        };
         this.buscarAutor = this.buscarAutor.bind(this);
         this.liked = this.liked.bind(this);
+        this.eliminarPublicacion = this.eliminarPublicacion.bind(this);
     }
     componentDidMount(){
         this.setState({id:this.props.usuarioID})
-        var publicaciones = JSON.parse(localStorage.getItem("publicaciones"));
-        publicaciones.sort(function(a,b){return b.id_publicacion-a.id_publicacion})
-        this.setState({publicaciones:publicaciones})
+        var publicacionesData = JSON.parse(localStorage.getItem("publicaciones"));
+        var publicaciones =[]
+        var c=0;
+        for(var i = 0 ; i< publicacionesData.length;i++){
+            if(publicacionesData[i].estado=="1"){
+                publicaciones.splice(c,0,publicacionesData[i]);
+                c++;
+            }
+        }
+        publicaciones.sort(function(a,b){return b.id_publicacion-a.id_publicacion});
+        this.setState({publicaciones:publicaciones});
     }
     buscarAutor(id){
         const usuarios = JSON.parse(localStorage.getItem("usuarios"))
@@ -232,21 +244,43 @@ class Publicacion extends React.Component{
         }
         return false;
     }
+    eliminarPublicacion(id_publicacion){
+        var publicacionesData = JSON.parse(localStorage.getItem("publicaciones"));
+        var publicaciones=[];
+        for(var i=0;i<publicacionesData.length;i++){
+            if(publicacionesData[i].id_publicacion==id_publicacion){
+                publicacionesData[i].estado="0";
+                publicaciones.splice(i,0,publicacionesData[i]);
+            }else{
+                publicaciones.splice(i,0,publicacionesData[i]);
+            }
+        }
+        localStorage.removeItem("publicaciones");
+        localStorage.setItem("publicaciones",JSON.stringify(publicaciones));
+    }
     render(){
         var lista = this.state.publicaciones;
         const etiq = lista.map(publicacion=>
             <tr><td classsName="">
-                <div className="">
-                    {publicacion.contenido}
+                <div className="row">
+                    <div className="col">{publicacion.contenido}</div>
                 </div>
-                <div className="">
+                <div className="row">
+                <div className="col-5">
                     {this.buscarAutor(publicacion.id_usuario)}
-                </div>        
-                <div className="text-right">
+                </div>     
+                <div className="col text-right">
+                    {(publicacion.id_usuario==this.state.id)?<a href="#" onClick={()=>{this.eliminarPublicacion(publicacion.id_publicacion)}} >Eliminar</a>:<div></div>}
+                </div>   
+                <div className="col text-right">
+                    {(publicacion.id_usuario==this.state.id)?<a>Editar</a>:<div></div>}
+                </div>  
+                <div className="col text-right">
                     {publicacion.listaUsuariosLike.length}
                     <button type="button" className="button">
                         {!this.liked(this.state.id,publicacion.listaUsuariosLike)?(<ion-icon name="thumbs-up"></ion-icon>):(<ion-icon name="thumbs-down"></ion-icon>)}                        
                     </button>
+                </div>
                 </div>
             </td></tr>
         );
@@ -291,7 +325,8 @@ class BarraPublicacion extends React.Component{
             id_publicacion:(publicaciones.length+1),
             contenido:this.state.contenido,
             id_usuario:this.state.id,
-            listaUsuariosLike:[]
+            listaUsuariosLike:[],
+            estado:"1"
         };
         publicaciones.splice(publicaciones.length,0,publicacionNueva);
         localStorage.removeItem("publicaciones");
@@ -371,7 +406,7 @@ class PaginaPrincipal extends React.Component{
         return(
             <div>
                 <BarraPaginaPrincipal clickMostrarInfoPersonal={this.mostrarInfoPersonal} 
-                clickMostrarPublicacion={this.mostrarPublicaciones}></BarraPaginaPrincipal>
+                clickMostrarPublicacion={this.mostrarPublicaciones} usuarioNombre={this.state.usuario.nombres}></BarraPaginaPrincipal>
                 <div>{etiqInfo}</div>
                 <div>{etiqPubli}</div>
                 <div>{eti}</div>
