@@ -82,9 +82,10 @@ class Login extends React.Component{
                         break;
                     }else{
                         this.setState({mensajePassword:"Contraseña incorrecta"})
+                        break;
                     }
-                    break;
-                }else{
+                }
+                if(i==usuarios.length-1){
                     this.setState({mensajeCorreo:"Correo no registrado"});
                 }
             }
@@ -210,6 +211,7 @@ class Publicacion extends React.Component{
         this.buscarAutor = this.buscarAutor.bind(this);
         this.liked = this.liked.bind(this);
         this.eliminarPublicacion = this.eliminarPublicacion.bind(this);
+        this.modPub = this.modPub.bind(this)
     }
     componentDidMount(){
         this.setState({id:this.props.usuarioID})
@@ -258,6 +260,9 @@ class Publicacion extends React.Component{
         localStorage.removeItem("publicaciones");
         localStorage.setItem("publicaciones",JSON.stringify(publicaciones));
     }
+    modPub(id_publicacion,contenido){
+        this.props.clickModificarPublicacion(id_publicacion,contenido)
+    }
     render(){
         var lista = this.state.publicaciones;
         const etiq = lista.map(publicacion=>
@@ -273,7 +278,7 @@ class Publicacion extends React.Component{
                     {(publicacion.id_usuario==this.state.id)?<a href="#" onClick={()=>{this.eliminarPublicacion(publicacion.id_publicacion)}} >Eliminar</a>:<div></div>}
                 </div>   
                 <div className="col text-right">
-                    {(publicacion.id_usuario==this.state.id)?<a>Editar</a>:<div></div>}
+                    {(publicacion.id_usuario==this.state.id)?<a href="#" onClick={()=>{this.modPub(publicacion.id_publicacion,publicacion.contenido)}} data-toggle="modal" data-target="#barraModificarPublicacion">Editar</a>:<div></div>}
                 </div>  
                 <div className="col text-right">
                     {publicacion.listaUsuariosLike.length}
@@ -351,12 +356,77 @@ class BarraPublicacion extends React.Component{
                 </div>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={()=>{this.setState({contenido:""})}}>Close</button>
               <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={this.crearPublicacion}>Publicar</button>
             </div>
           </div>
         </div>
       </div>)
+        return(
+            <div>{eti}</div>
+        )
+    }
+}
+class BarraModificarPublicacion extends React.Component{
+    constructor(props){
+        super(props);
+        this.state={
+            contenidoModificado:""
+        }
+        this.onChangeContenido = this.onChangeContenido.bind(this);
+        this.modificarContenido = this.modificarContenido.bind(this);
+        this.copiar = this.copiar.bind(this);
+    }
+    onChangeContenido(e){
+        this.setState({contenidoModificado:e.target.value})
+        console.log(this.state.contenidoModificado)
+    }
+    componentDidMount(){
+        this.setState({contenidoModificado:this.props.contenido})
+    }
+    modificarContenido(id_publicacion){
+        var publicacionesData = JSON.parse(localStorage.getItem("publicaciones"))
+        for(var i = 0; i<publicacionesData.length;i++){
+            if(publicacionesData[i].id_publicacion==id_publicacion){
+                publicacionesData[i].contenido = this.state.contenidoModificado;
+                console.log(this.state.contenidoModificado);
+                break;
+            }
+        }
+        localStorage.removeItem("publicaciones");
+        localStorage.setItem("publicaciones",JSON.stringify(publicacionesData))
+    }
+    copiar(contenido){
+        this.setState({contenidoModificado:contenido})
+    }
+    render(){
+        const contA =<textarea className="cuadroPublicacion" row="5" maxLength={350} value={this.props.contenido} disabled></textarea>
+        const contN =<textarea className="cuadroPublicacion" row="5" onChange={this.onChangeContenido}  maxLength={350} value={this.state.contenidoModificado}></textarea>
+        const eti = ( <div className="modal fade" id="barraModificarPublicacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal-dialog" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="exampleModalLabel">Natural Social Network-Modifica tu publicacion</h5>
+              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div className="">
+                <div className="offset-lg-1"></div>
+                <div className="col-lg-10">
+                    <div>{contA}</div>
+                    <button className="btn btn-dark" onClick={()=>{this.copiar(this.props.contenido)}}>Copiar</button>
+                    <div>{contN}</div>
+                    <small className>La publicacion tiene como maximo 350 caracteres :)</small>
+                </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={()=>{this.setState({contenidoModificado:""})}}>Close</button>
+              <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={()=>{this.modificarContenido(this.props.idPublicacion),this.setState({contenidoModificado:""})}}>Publicar</button>
+            </div>
+          </div>
+        </div>
+      </div>);
         return(
             <div>{eti}</div>
         )
@@ -373,11 +443,12 @@ class PaginaPrincipal extends React.Component{
             },
             verPerfil:false,
             verPublicacion:false,
-            
+            id_publicacion_Modificada:0,
+            contenido:""
         };
         this.mostrarInfoPersonal = this.mostrarInfoPersonal.bind(this);
         this.mostrarPublicaciones = this.mostrarPublicaciones.bind(this);
-        
+        this.modificarPublicacion = this.modificarPublicacion.bind(this);
     }
     componentDidMount(){
         var usuarios = JSON.parse(localStorage.getItem("usuarios"));
@@ -399,10 +470,14 @@ class PaginaPrincipal extends React.Component{
     mostrarPublicaciones(){
         this.setState({verPerfil:false,verPublicacion:true})
     }
+    modificarPublicacion(id_publicacion,contenido){
+        this.setState({id_publicacion_Modificada:id_publicacion,contenido:contenido})
+    }
     render(){
         var etiqInfo = this.state.verPerfil?(<InformacionPersonal usuario={this.state.usuario}></InformacionPersonal>):<div></div>
-        var etiqPubli = this.state.verPublicacion?(<Publicacion usuarioID={this.state.usuario.id} ></Publicacion>):<div></div>
+        var etiqPubli = this.state.verPublicacion?(<Publicacion usuarioID={this.state.usuario.id} clickModificarPublicacion={this.modificarPublicacion} ></Publicacion>):<div></div>
         var eti =<BarraPublicacion idUsuario={this.state.usuario.id}  clickMostrarPublicacion={this.mostrarPublicaciones}></BarraPublicacion>
+        var etiModificaPublicacion = <BarraModificarPublicacion idPublicacion={this.state.id_publicacion_Modificada} contenido={this.state.contenido}></BarraModificarPublicacion>;
         return(
             <div>
                 <BarraPaginaPrincipal clickMostrarInfoPersonal={this.mostrarInfoPersonal} 
@@ -410,6 +485,7 @@ class PaginaPrincipal extends React.Component{
                 <div>{etiqInfo}</div>
                 <div>{etiqPubli}</div>
                 <div>{eti}</div>
+                <div>{etiModificaPublicacion}</div>
             </div>            
         )
     }
