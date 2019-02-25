@@ -70,4 +70,8 @@
 .opacity90{
     opacity: 0.90
 }
-
+.cuadroPublicacion{    
+    width: 470px;
+    border: seagreen solid 5px;
+    border-radius: 5px
+}

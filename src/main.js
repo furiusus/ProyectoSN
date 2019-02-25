@@ -140,11 +140,10 @@ function BarraPaginaPrincipal(props){
                 <li className="nav-item">
                     <a className="nav-link" href="#" onClick={props.clickMostrarPublicacion}>Publicaciones</a>
                 </li>
-                </ul>
-                <form className="form-inline my-2 my-lg-0">
-                <input className="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"/>>
-                <button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                </form>
+                </ul>                
+                <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#barraPubli">
+                    Publicar 
+                </button>   
             </div>
         </nav>
         </div>
@@ -172,46 +171,156 @@ function InformacionPersonal(props){
         </div>
     )
 }
-function Publicacion (props){
-    const etiq = props.lista.map(publicacion=>
-        <tr><td>{publicacion.contenido}</td></tr>
-    );
-    return(
-        <div className="row">
-        <div className="col-lg-1"></div>
-        <div className="col-lg-10 col-md-12 col-sm-12 ">
-        <br></br>
-        <table className="table table-dark opacity70 table-responsive">
-            <tbody>
-                <div className>
-                    {etiq}
+class Publicacion extends React.Component{
+    constructor(props){
+        super(props);
+        this.state={
+            id:0,
+            author:"",
+            publicaciones:[]
+        }
+        this.buscarAutor = this.buscarAutor.bind(this);
+        this.liked = this.liked.bind(this);
+    }
+    componentDidMount(){
+        this.setState({id:this.props.usuarioID})
+        var publicaciones = JSON.parse(localStorage.getItem("publicaciones"));
+        publicaciones.sort(function(a,b){return b.id_publicacion-a.id_publicacion})
+        this.setState({publicaciones:publicaciones})
+    }
+    buscarAutor(id){
+        const usuarios = JSON.parse(localStorage.getItem("usuarios"))
+        for(var i=0; i<usuarios.length;i++){
+            if(usuarios[i].id==id){
+                return usuarios[i].nombres;
+                break;
+            }
+        }
+        return "Usuario desconocido"
+    }
+    liked(id_usuario,listaUsuariosLike){
+        for(var i = 0; i<listaUsuariosLike.length;i++){
+            if(listaUsuariosLike[i]==id_usuario){
+                return true;
+                break;
+            }
+        }
+        return false;
+    }
+    render(){
+        var lista = this.state.publicaciones;
+        const etiq = lista.map(publicacion=>
+            <tr><td classsName="">
+                <div className="">
+                    {publicacion.contenido}
                 </div>
-                
-            </tbody>
-        </table>
+                <div className="">
+                    {this.buscarAutor(publicacion.id_usuario)}
+                </div>        
+                <div className="text-right">
+                    {publicacion.listaUsuariosLike.length}
+                    <button type="button" className="button">
+                        {!this.liked(this.state.id,publicacion.listaUsuariosLike)?(<ion-icon name="thumbs-up"></ion-icon>):(<ion-icon name="thumbs-down"></ion-icon>)}                        
+                    </button>
+                </div>
+            </td></tr>
+        );
+        return(
+            <div className="row">
+            <div className="col-lg-1"></div>
+            <div className="col-lg-10 col-md-12 col-sm-12 ">
+            <br></br>
+            <table className="table table-dark opacity70 table-hover">
+                <tbody>
+                        {etiq}
+                </tbody>
+            </table>
+            </div>
+            </div>
+        )
+    }
+}
+class BarraPublicacion extends React.Component{
+    constructor(props){
+        super(props);
+        this.state={
+            id:this.props.idUsuario,
+            contenido:""
+        }
+        this.crearPublicacion = this.crearPublicacion.bind(this);
+        this.contenidoChange = this.contenidoChange.bind(this);
+    }
+    componentDidMount(){
+        
+    }
+    contenidoChange(e){
+        var contenido = e.target.value;
+        this.setState((state)=>{
+            state.contenido = contenido;
+        });
+    }
+    crearPublicacion(){
+        
+        const publicaciones = JSON.parse(localStorage.getItem("publicaciones"));
+        var publicacionNueva = {
+            id_publicacion:(publicaciones.length+1),
+            contenido:this.state.contenido,
+            id_usuario:this.state.id,
+            listaUsuariosLike:[]
+        };
+        publicaciones.splice(publicaciones.length,0,publicacionNueva);
+        localStorage.removeItem("publicaciones");
+        localStorage.setItem("publicaciones",JSON.stringify(publicaciones)); 
+        this.setState({contenido:""});
+    }
+
+    render(){
+        const eti =(<div className="modal fade" id="barraPubli" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal-dialog" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="exampleModalLabel">Natural Social Network</h5>
+              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div className="">
+                <div className="offset-lg-1"></div>
+                <div className="col-lg-10">
+                    <textarea className="cuadroPublicacion" row="5" onChange={this.contenidoChange} maxLength={350} value={this.state.contenido}></textarea> 
+                    <small className>La publicacion tiene como maximo 350 caracteres :)</small>
+                </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={this.crearPublicacion}>Publicar</button>
+            </div>
+          </div>
         </div>
-        </div>
-    )
+      </div>)
+        return(
+            <div>{eti}</div>
+        )
+    }
 }
 class PaginaPrincipal extends React.Component{
     constructor(props){
         super(props);
         this.state={
             usuario:{
-                id:0,
+                id:this.props.id,
                 nombres:"",
                 correo:""
             },
             verPerfil:false,
             verPublicacion:false,
-            publicaciones:[]
+            
         };
         this.mostrarInfoPersonal = this.mostrarInfoPersonal.bind(this);
         this.mostrarPublicaciones = this.mostrarPublicaciones.bind(this);
+        
     }
     componentDidMount(){
-        const publicaciones = JSON.parse(localStorage.getItem("publicaciones"));
-        this.setState({publicaciones})
         var usuarios = JSON.parse(localStorage.getItem("usuarios"));
         for(var i=0;i<usuarios.length;i++){
             if(usuarios[i].id==this.props.id){
@@ -230,18 +339,18 @@ class PaginaPrincipal extends React.Component{
     }
     mostrarPublicaciones(){
         this.setState({verPerfil:false,verPublicacion:true})
-
     }
     render(){
-        var lista =this.state.publicaciones;
         var etiqInfo = this.state.verPerfil?(<InformacionPersonal usuario={this.state.usuario}></InformacionPersonal>):<div></div>
-        var etiqPubli = this.state.verPublicacion?(<Publicacion usuarioID={this.state.usuario.id} lista={lista}></Publicacion>):<div></div>
+        var etiqPubli = this.state.verPublicacion?(<Publicacion usuarioID={this.state.usuario.id} ></Publicacion>):<div></div>
+        var eti =<BarraPublicacion idUsuario={this.state.usuario.id}  clickMostrarPublicacion={this.mostrarPublicaciones}></BarraPublicacion>
         return(
             <div>
                 <BarraPaginaPrincipal clickMostrarInfoPersonal={this.mostrarInfoPersonal} 
                 clickMostrarPublicacion={this.mostrarPublicaciones}></BarraPaginaPrincipal>
                 <div>{etiqInfo}</div>
                 <div>{etiqPubli}</div>
+                <div>{eti}</div>
             </div>            
         )
     }
