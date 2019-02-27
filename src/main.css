@@ -94,3 +94,18 @@
     font-weight: bold;
     color: #dc3545;
   }
+  div.mainTitulo{
+      font-size: 36px;
+      font-family: 'Times New Roman', Times, serif;
+      font-weight: bold;
+      font-style: italic;
+      text-align: center;
+  }
+  .cuadroPie{
+    background-color:black;
+    opacity: .7;
+    border: black solid .8;
+    border-radius: 12px;
+    color: white;
+    text-align: center
+  }

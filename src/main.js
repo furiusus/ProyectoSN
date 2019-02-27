@@ -102,12 +102,18 @@ class Login extends React.Component{
         ):<div className="valido"></div>;
         const etiqueta = !this.state.entrar?(
             <div>
-        <div ><br></br><br></br><br></br><br></br></div>
+        <div ><br></br><br></br></div>
         <div className="row container" >
         <div className="col-sm-2 col-lg-4"></div>
-        <div className="col-12 col-sm-8 col-lg-4 fondoLogin">
-            <br></br>
+        <div className="col-12 col-sm-8 col-lg-4 ">
+            <div className="mainTitulo">
+            <img className="d-inline-block align-top" width="50" height="50" src="image/tree.png"></img>
+                    Natural Social Network
+            </div>
+            <br></br><br></br>
+            <div className="fondoLogin container">
             <form >
+                <br></br>
                 <div className="form-group">
                     <label for="correo" className="sub-login">Correo:</label>
                     <input onChange={this.correoChange} className="form-control" type="email" id="correo" placeholder="Ingrese correo"></input>
@@ -123,11 +129,11 @@ class Login extends React.Component{
                 <button className="btn btn-primary" onClick={this.entrar} value={this.props.clickEntrando}>Entrar</button>
             </div>
             <br></br>
-            <br></br>
+            </div>
         </div>
         <div className="col-sm-2"></div>
         </div>
-        <div><br></br><br></br><br></br><br></br><br></br><br></br></div>
+        <div><br></br><br></br></div>
         </div>):<PaginaPrincipal id={this.state.id}></PaginaPrincipal>
         switch(this.state.pagina){
             case 0:
@@ -157,7 +163,10 @@ function BarraPaginaPrincipal(props){
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
                 <span className="navbar-toggler-icon"></span>
             </button>
-            <a className="navbar-brand" href="#">Natural Social Network</a>
+            <a className="navbar-brand" href="#">
+                <img className="d-inline-block align-top" width="30" height="30" src="image/tree.png"></img>
+                Natural Social Network
+            </a>
             <div className="collapse navbar-collapse" id="navbarTogglerDemo03">
                 <ul className="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li className="nav-item">
@@ -343,7 +352,10 @@ class BarraPublicacion extends React.Component{
         <div className="modal-dialog" role="document">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">Natural Social Network</h5>
+              <h5 className="modal-title" id="exampleModalLabel">
+                <img className="d-inline-block align-top" width="30" height="30" src="image/tree.png"></img>
+                    Natural Social Network
+                </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -406,12 +418,15 @@ class BarraModificarPublicacion extends React.Component{
         <div className="modal-dialog" role="document">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">Natural Social Network-Modifica tu publicacion</h5>
+              <h5 className="modal-title" id="exampleModalLabel">
+                    <img className="d-inline-block align-top" width="30" height="30" src="image/tree.png"></img>
+                    Natural Social Network-Modifica tu publicacion
+                </h5>
               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div className="">
+            <div className="">  
                 <div className="offset-lg-1"></div>
                 <div className="col-lg-10">
                     <div>{contA}</div>
@@ -709,7 +724,14 @@ class AplicacionWeb extends React.Component{
     }
     render(){
         return(
-            <Login></Login>
+            <div>
+                <Login></Login>
+                <div className="cuadroPie">
+                    <div>Creado por :Ronny Daniel Herrera H.(furiusus)</div>
+                    <a href="https://furiusus.github.io/ProyectoSN/README.md">AYUDA{" "}</a>
+                    <a href="https://github.com/furiusus/ProyectoSN">DOCUMENTACION</a>
+                </div>
+            </div>
         )
     }
 }
