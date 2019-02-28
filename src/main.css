@@ -109,3 +109,15 @@
     color: white;
     text-align: center
   }
+.dislike{
+    color:gray;
+}
+.dislike:hover{
+    color:blue;
+}
+.like{
+    color:blue;
+}
+.like:hover{
+    color:gray;
+}

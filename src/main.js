@@ -218,9 +218,11 @@ class Publicacion extends React.Component{
             publicaciones:[]
         };
         this.buscarAutor = this.buscarAutor.bind(this);
-        this.liked = this.liked.bind(this);
+        this.buscarliked = this.buscarliked.bind(this);
         this.eliminarPublicacion = this.eliminarPublicacion.bind(this);
-        this.modPub = this.modPub.bind(this)
+        this.modPub = this.modPub.bind(this);
+        this.likeToDislike = this.likeToDislike.bind(this);
+        this.dislikeToLike = this.dislikeToLike.bind(this);
     }
     componentDidMount(){
         this.setState({id:this.props.usuarioID})
@@ -246,7 +248,7 @@ class Publicacion extends React.Component{
         }
         return "Usuario desconocido"
     }
-    liked(id_usuario,listaUsuariosLike){
+    buscarliked(id_usuario,listaUsuariosLike){
         for(var i = 0; i<listaUsuariosLike.length;i++){
             if(listaUsuariosLike[i]==id_usuario){
                 return true;
@@ -272,29 +274,68 @@ class Publicacion extends React.Component{
     modPub(id_publicacion,contenido){
         this.props.clickModificarPublicacion(id_publicacion,contenido)
     }
+    likeToDislike(publicacion,id_usuario){
+        const publicaciones = JSON.parse(localStorage.getItem("publicaciones"));
+        for(var i = 0;i<publicaciones.length;i++){
+            if(publicacion.id_publicacion==publicaciones[i].id_publicacion){
+                if(!this.buscarliked(id_usuario,publicaciones[i].listaUsuariosLike)){
+                    publicaciones[i].listaUsuariosLike.splice(publicaciones[i].listaUsuariosLike.length,0,id_usuario)
+                    break;
+                }
+            }
+        }
+        localStorage.removeItem("publicaciones");
+        localStorage.setItem("publicaciones",JSON.stringify(publicaciones));
+    }
+    dislikeToLike(publicacion,id_usuario){
+        const publicaciones = JSON.parse(localStorage.getItem("publicaciones"));
+        for(var i = 0;i<publicaciones.length;i++){
+            if(publicacion.id_publicacion==publicaciones[i].id_publicacion){
+                for( var j=0;j<publicaciones[i].listaUsuariosLike.length;j++) {
+                       if(publicaciones[i].listaUsuariosLike[j]==id_usuario){
+                           publicaciones[i].listaUsuariosLike.splice(j,1);
+                           break;
+                       }
+                   }
+                break;
+            }
+        }
+        localStorage.removeItem("publicaciones");
+        localStorage.setItem("publicaciones",JSON.stringify(publicaciones));
+    }
     render(){
         var lista = this.state.publicaciones;
+        var id = this.state.id;
+        var btnLiked = function(publicacion,likeToDislike){
+            return(<a className="like" href="#" onClick={()=>{likeToDislike(publicacion,id)}}>
+                {publicacion.listaUsuariosLike.length}
+                <ion-icon name="thumbs-up"></ion-icon>
+            </a>)
+        };
+        var btnDisliked = function (publicacion,dislikeToLike) {  
+            return (<a className="dislike" href="#" onClick={()=>{dislikeToLike(publicacion,id)}}>
+                {publicacion.listaUsuariosLike.length}
+                <ion-icon name="thumbs-down"></ion-icon>
+            </a>)
+        };
         const etiq = lista.map(publicacion=>
             <tr><td classsName="">
                 <div className="row">
                     <div className="col">{publicacion.contenido}</div>
                 </div>
                 <div className="row">
-                <div className="col-5">
-                    {this.buscarAutor(publicacion.id_usuario)}
-                </div>     
-                <div className="col text-right">
-                    {(publicacion.id_usuario==this.state.id)?<a href="#" onClick={()=>{this.eliminarPublicacion(publicacion.id_publicacion)}} >Eliminar</a>:<div></div>}
-                </div>   
-                <div className="col text-right">
-                    {(publicacion.id_usuario==this.state.id)?<a href="#" onClick={()=>{this.modPub(publicacion.id_publicacion,publicacion.contenido)}} data-toggle="modal" data-target="#barraModificarPublicacion">Editar</a>:<div></div>}
-                </div>  
-                <div className="col text-right">
-                    {publicacion.listaUsuariosLike.length}
-                    <button type="button" className="button">
-                        {!this.liked(this.state.id,publicacion.listaUsuariosLike)?(<ion-icon name="thumbs-up"></ion-icon>):(<ion-icon name="thumbs-down"></ion-icon>)}                        
-                    </button>
-                </div>
+                    <div className="col-5">
+                        {this.buscarAutor(publicacion.id_usuario)}
+                    </div>     
+                    <div className="col text-right">
+                        {(publicacion.id_usuario==this.state.id)?<a href="#" onClick={()=>{this.eliminarPublicacion(publicacion.id_publicacion)}} >Eliminar</a>:<div></div>}
+                    </div>   
+                    <div className="col text-right">
+                        {(publicacion.id_usuario==this.state.id)?<a href="#" onClick={()=>{this.modPub(publicacion.id_publicacion,publicacion.contenido)}} data-toggle="modal" data-target="#barraModificarPublicacion">Editar</a>:<div></div>}
+                    </div>  
+                    <div className="col text-right"> 
+                        {!this.buscarliked(this.state.id,publicacion.listaUsuariosLike)?btnLiked(publicacion,this.likeToDislike):btnDisliked(publicacion,this.dislikeToLike)}
+                    </div>
                 </div>
             </td></tr>
         );
@@ -457,7 +498,7 @@ class PaginaPrincipal extends React.Component{
                 correo:""
             },
             verPerfil:false,
-            verPublicacion:false,
+            verPublicacion:0,
             id_publicacion_Modificada:0,
             contenido:""
         };
@@ -480,17 +521,33 @@ class PaginaPrincipal extends React.Component{
         }
     }
     mostrarInfoPersonal(){
-        this.setState({verPerfil:true,verPublicacion:false})
+        this.setState({verPerfil:true,verPublicacion:0})
     }
     mostrarPublicaciones(){
-        this.setState({verPerfil:false,verPublicacion:true})
+        if(this.state.verPublicacion==1){
+            this.setState({verPerfil:false,verPublicacion:2})
+        }if(this.state.verPublicacion==2){
+            this.setState({verPerfil:false,verPublicacion:1})
+        }if(this.state.verPublicacion==0){
+            this.setState({verPerfil:false,verPublicacion:2})
+        }
+        
     }
     modificarPublicacion(id_publicacion,contenido){
         this.setState({id_publicacion_Modificada:id_publicacion,contenido:contenido})
     }
     render(){
         var etiqInfo = this.state.verPerfil?(<InformacionPersonal usuario={this.state.usuario}></InformacionPersonal>):<div></div>
-        var etiqPubli = this.state.verPublicacion?(<Publicacion usuarioID={this.state.usuario.id} clickModificarPublicacion={this.modificarPublicacion} ></Publicacion>):<div></div>
+        if(this.state.verPublicacion==1){
+            var etiqPubli1=<Publicacion usuarioID={this.state.usuario.id} clickModificarPublicacion={this.modificarPublicacion} ></Publicacion>
+            var etiqPubli2=<div></div>
+        }if(this.state.verPublicacion==2){
+            var etiqPubli2=<Publicacion usuarioID={this.state.usuario.id} clickModificarPublicacion={this.modificarPublicacion} ></Publicacion>
+            var etiqPubli1=<div></div>
+        }if(this.state.verPublicacion==0){
+            var etiqPubli1=<div></div>
+            var etiqPubli2=<div></div>
+        }
         var eti =<BarraPublicacion idUsuario={this.state.usuario.id}  clickMostrarPublicacion={this.mostrarPublicaciones}></BarraPublicacion>
         var etiModificaPublicacion = <BarraModificarPublicacion idPublicacion={this.state.id_publicacion_Modificada} contenido={this.state.contenido}></BarraModificarPublicacion>;
         return(
@@ -498,7 +555,8 @@ class PaginaPrincipal extends React.Component{
                 <BarraPaginaPrincipal clickMostrarInfoPersonal={this.mostrarInfoPersonal} 
                 clickMostrarPublicacion={this.mostrarPublicaciones} usuarioNombre={this.state.usuario.nombres}></BarraPaginaPrincipal>
                 <div>{etiqInfo}</div>
-                <div>{etiqPubli}</div>
+                <div>{etiqPubli1}</div>
+                <div>{etiqPubli2}</div>
                 <div>{eti}</div>
                 <div>{etiModificaPublicacion}</div>
             </div>            
