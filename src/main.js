@@ -635,6 +635,7 @@ class Registro extends React.Component{
     validarPassword(password,repeatPassword){
         if(password.length==0){
             this.setState({mensajeContrasenia:"Contraseña invalido"})
+            this.setState({mensajeRepeatContrasenia:""})
             return false;
         }else{
             if(password==repeatPassword){
@@ -643,6 +644,7 @@ class Registro extends React.Component{
                 return true;    
             }else{
                 this.setState({mensajeRepeatContrasenia:"Contraseñas no coinciden"})
+                this.setState({mensajeContrasenia:""})
                 return false;
             }
         }
