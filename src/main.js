@@ -324,16 +324,16 @@ class Publicacion extends React.Component{
                     <div className="col">{publicacion.contenido}</div>
                 </div>
                 <div className="row">
-                    <div className="col-5">
+                    <div className="col-sm-12 col-md-12 col-lg-5 col-xl-5">
                         {this.buscarAutor(publicacion.id_usuario)}
                     </div>     
-                    <div className="col text-right">
+                    <div className="col-sm-6 col-md-6 col-lg col-xl text-right">
                         {(publicacion.id_usuario==this.state.id)?<a href="#" onClick={()=>{this.eliminarPublicacion(publicacion.id_publicacion)}} >Eliminar</a>:<div></div>}
                     </div>   
-                    <div className="col text-right">
+                    <div className="col-sm-6 col-md-6 col-lg col-xl text-right">
                         {(publicacion.id_usuario==this.state.id)?<a href="#" onClick={()=>{this.modPub(publicacion.id_publicacion,publicacion.contenido)}} data-toggle="modal" data-target="#barraModificarPublicacion">Editar</a>:<div></div>}
                     </div>  
-                    <div className="col text-right"> 
+                    <div className="col-sm-12 col-md-12 col-lg col-xl  text-right"> 
                         {!this.buscarliked(this.state.id,publicacion.listaUsuariosLike)?btnLiked(publicacion,this.likeToDislike):btnDisliked(publicacion,this.dislikeToLike)}
                     </div>
                 </div>
