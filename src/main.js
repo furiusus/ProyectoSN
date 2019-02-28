@@ -648,18 +648,18 @@ class Registro extends React.Component{
         }
     }
     validarNombre(nombre,apellido){
-        if(nombre==""){
+        if(nombre==""&&apellido!=""){
             this.setState({nombres:apellido})
             this.setState({mensajeNombreApellido:""})
             return true;
-        }if(apellido==""){
+        }if(nombre!=""&&apellido==""){
             this.setState({nombres:nombre})
             this.setState({mensajeNombreApellido:""})
             return true;
         }if(nombre==""&&apellido==""){
             this.setState({mensajeNombreApellido:"Debe ingresar almenos 1 dato en Nombre o Apellido"})
             return false;
-        }else{
+        }if(nombre!=""&&apellido!=""){
             this.setState({nombres:nombre+","+apellido})
             this.setState({mensajeNombreApellido:""})
             return true;
